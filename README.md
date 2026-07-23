@@ -174,7 +174,7 @@ These results show controllable changes in measurable musical attributes. They d
 
 ```bash
 git clone <your-repository-url>
-cd commu-mood-conditioned-midi-generation
+cd PW_Deep_learning
 python -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 python -m pip install --upgrade pip
@@ -186,7 +186,40 @@ Git LFS is required because the official ComMU repository stores the MIDI archiv
 
 ### Google Colab
 
-Clone the repository in Colab, open the notebook and execute the environment cell. The notebook can optionally mount Google Drive for persistent checkpoints.
+Use `notebooks/commu_mood_conditioned_generation.ipynb` for a persistent Colab run. The notebook mounts Google Drive, changes the working directory to `MyDrive/PW_Deep_learning`, and then uses only repository-relative project paths:
+
+```text
+MyDrive/PW_Deep_learning/
+├── artifacts/
+├── results/
+└── figures/
+```
+
+Before training, save the notebook itself to Drive (`File → Save a copy in Drive`) so that its executed cell outputs are also preserved. Checkpoints, CSV histories, generated MIDI files and exported figures are written independently to the directory above.
+
+The only absolute path used is Colab's mandatory Drive mount point (`/content/drive`). After entering `MyDrive/PW_Deep_learning`, all dataset, checkpoint, result and figure paths are relative (`data/...`, `artifacts/...`, `results/...`, `figures/...`). The setup cell immediately writes `results/storage_check.json`; verify that this file appears before starting training.
+
+## Persistent Colab outputs
+
+The Drive-enabled notebook keeps the repository-facing outputs separate from large artifacts:
+
+| Directory | Contents | Commit to GitHub? |
+|---|---|---|
+| `artifacts/` | checkpoints, token caches, generated MIDI/WAV, detailed experiment files | No |
+| `results/` | summary CSV/JSON files | Yes |
+| `figures/` | training curves and evaluation plots | Yes |
+
+Expected figure files include:
+
+```text
+figures/training_loss_transformer_mood_100e.png
+figures/training_loss_transformer_no_mood_100e.png
+figures/training_loss_transformer_mood_emphasis_ft20.png
+figures/training_curves.png
+figures/feature_separation_three_models.png
+```
+
+Each `training_loss_*.png` file is updated after every completed epoch, together with `training_history.csv`. `training_curves.png` is rebuilt from those persisted CSV files, so it can be regenerated without retraining the models.
 
 ## Running the project
 
@@ -203,10 +236,12 @@ Execute the notebook in order. The first complete run will:
 3. build mood labels and project splits;
 4. tokenize and cache sequences;
 5. train or resume the three experiments;
-6. generate the controlled evaluation set;
-7. save metrics, MIDI files, rendered audio and comparison tables under `artifacts/`.
+6. save `last_model.pt` and `training_history.csv` after every completed epoch;
+7. generate the controlled evaluation set;
+8. save detailed metrics, MIDI files, rendered audio and caches under `artifacts/`;
+9. export compact tables under `results/` and PNG plots under `figures/`.
 
-The full experiment is computationally expensive. Checkpoints and the latest training state are saved so interrupted runs can resume.
+The full experiment is computationally expensive. If Colab disconnects, rerun the notebook from the beginning: completed preprocessing is reused when available, and each incomplete experiment resumes from its latest checkpoint. At most the unfinished epoch is lost.
 
 ## Reproducibility
 
@@ -215,7 +250,9 @@ The full experiment is computationally expensive. Checkpoints and the latest tra
 - Identical architecture and optimizer for the two baselines.
 - Identical random seed across requested labels for every paired generation sample.
 - Best-validation and latest checkpoints stored separately.
+- Training history persisted after every epoch.
 - Configuration and condition vocabulary saved inside each experiment directory.
+- Compact results and figures exported with the filenames referenced in this README.
 
 ## What is not included in Git
 
@@ -227,7 +264,7 @@ The following are excluded because of size or external licensing:
 - generated MIDI and WAV files;
 - full experiment artifact directories.
 
-Small result summaries and figures from the completed run are included under `results/` and `figures/`.
+After a complete run, copy or commit the compact summaries under `results/` and the PNG files under `figures/`. The reference numbers shown in this README come from the original completed project run; a new GPU run may differ slightly because some CUDA operations are not perfectly deterministic.
 
 ## Limitations
 

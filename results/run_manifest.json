@@ -1,0 +1,11 @@
+{
+  "artifact_root": "artifacts",
+  "results_directory": "results",
+  "figures_directory": "figures",
+  "experiments": [
+    "transformer_mood_100e",
+    "transformer_no_mood_100e",
+    "transformer_mood_emphasis_ft20"
+  ],
+  "seed": 42
+}
