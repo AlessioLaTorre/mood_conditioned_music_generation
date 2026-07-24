@@ -14,12 +14,6 @@ The project compares:
 2. an otherwise identical model without mood;
 3. a short fine-tuning stage that repeats the mood token three times.
 
-## Important methodological note
-
-ComMU does not provide human emotion annotations. The six labels used in this project—`calm`, `joy`, `sadness`, `mystery`, `tension` and `danger`—are pseudo-labels derived from key mode, tempo and mean MIDI velocity.
-
-The reported heuristic agreement therefore measures consistency with the labelling rule. It is **not** human emotion-recognition accuracy.
-
 ## Repository structure
 
 ```text
@@ -65,6 +59,14 @@ Validity, originality and controllability evaluation
 
 ## Dataset and preprocessing
 
+The project uses the ComMU dataset, a symbolic-music dataset containing MIDI files associated with compositional metadata. Each metadata row is connected to a MIDI file through its unique identifier.
+
+The metadata describes several aspects of each musical sequence. In this project, the attributes have three main roles:
+
+subset filtering: genre, num_measures, time_signature and sample_rhythm;
+model conditioning: genre, track_role, inst and num_measures;
+mood pseudo-label construction: audio_key, bpm, min_velocity and max_velocity.
+
 The official ComMU metadata contains 11,144 connected MIDI files. The project retains examples satisfying:
 
 - genre: `cinematic`;
@@ -84,6 +86,13 @@ arousal = 0.60 × normalized BPM + 0.40 × normalized mean velocity
 Major-key examples are divided into `calm` and `joy` at the median arousal value. Minor-key examples are divided into `sadness`, `mystery`, `tension` and `danger` using arousal quartiles. Normalization ranges and thresholds are fitted only on the official training portion.
 
 The project split contains 1,620 training examples, 180 validation examples and 324 final test examples. The training set is balanced at 270 examples per mood.
+
+## Important methodological note
+
+ComMU does not provide human emotion annotations. The six labels used in this project—`calm`, `joy`, `sadness`, `mystery`, `tension` and `danger`—are pseudo-labels derived from key mode, tempo and mean MIDI velocity.
+
+The reported heuristic agreement therefore measures consistency with the labelling rule. It is **not** human emotion-recognition accuracy.
+
 
 ## Tokenization and conditioning
 
